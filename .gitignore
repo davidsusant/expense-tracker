@@ -1,0 +1,4 @@
+.vscode/
+.idea/
+target/
+config.properties

@@ -1,0 +1,14 @@
+# Browser Configuration
+browser=chrome
+headless=false
+implicit.wait=10
+page.load.timeout=30
+
+# Web Banking Configuration
+banking.url=
+banking.username=
+banking.password=
+
+# Screenshot Configuration
+screenshot.on.failure=true
+screenshot.path=test-output/screenshots/
