@@ -17,6 +17,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.expense.pages.LoginPage;
+import com.expense.pages.LogoutPage;
+import com.expense.pages.TransactionsPage;
 import com.expense.utils.ConfigReader;
 import com.expense.utils.DriverManager;
 
@@ -27,6 +29,8 @@ public class ExpenseTrackerAutomation {
     private WebDriver driver;
 
     private LoginPage loginPage;
+    private TransactionsPage transactionsPage;
+    private LogoutPage logoutPage;
 
     @BeforeClass
     public void setup() {
@@ -38,6 +42,8 @@ public class ExpenseTrackerAutomation {
 
             // Initialize Page Objects
             loginPage = new LoginPage(driver);
+            transactionsPage = new TransactionsPage(driver);
+            logoutPage = new LogoutPage(driver);
 
             logger.info("Setup completed successfully");
         } catch (Exception e) {
@@ -66,13 +72,41 @@ public class ExpenseTrackerAutomation {
         }
     }
 
+    @Test(priority = 2, dependsOnMethods = "loginToBankingWebsite")
+    public void extractTransactionsFromBanking() {
+        logger.info("Starting Extract Transaction...");
+
+        try {
+            // Navigate to transaction page
+            transactionsPage.navigateToTransactions();
+        } catch (Exception e) {
+            logger.error("Transaction extraction failed", e);
+            takeScreenshot("transactions_failure");
+            throw e;
+        }
+    }
+
+    @Test(priority = 3, dependsOnMethods = "extractTransactionsFromBanking")
+    public void logoutFromBankingWebsite() {
+        logger.info("Starting Logout...");
+
+        try {
+            // Click logout button
+            logoutPage.clickLogoutButton();
+        } catch (Exception e) {
+            logger.error("Logout failed", e);
+            takeScreenshot("logout_failure");
+            throw e;
+        }
+    }
+
     @AfterClass
     public void tearDown() {
-        logger.info("Cleanup...");
-        if (driver != null) {
-            DriverManager.quitDriver();
-        }
-        logger.info("Automation completed.");
+    logger.info("Cleanup...");
+    if (driver != null) {
+    DriverManager.quitDriver();
+    }
+    logger.info("Automation completed.");
     }
 
     private void takeScreenshot(String screenshotName) {
@@ -103,10 +137,12 @@ public class ExpenseTrackerAutomation {
         try {
             automation.setup();
             automation.loginToBankingWebsite();
+            automation.extractTransactionsFromBanking();
+            automation.logoutFromBankingWebsite();
         } catch (Exception e) {
             logger.error("Automation failed", e);
         } finally {
-            automation.tearDown();
+        automation.tearDown();
         }
     }
 }
