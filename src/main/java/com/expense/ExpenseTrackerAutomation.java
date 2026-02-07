@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -16,6 +17,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.expense.models.Transaction;
 import com.expense.pages.LoginPage;
 import com.expense.pages.LogoutPage;
 import com.expense.pages.TransactionsPage;
@@ -79,6 +81,22 @@ public class ExpenseTrackerAutomation {
         try {
             // Navigate to transaction page
             transactionsPage.navigateToTransactions();
+
+            // Extract transactions
+            List<Transaction> transactions = transactionsPage.extractTransactions();
+
+            if (transactions.isEmpty()) {
+                logger.warn("No transactions found");
+                return;
+            }
+
+            logger.info("Extracted {} transactions", transactions.size());
+
+            // Log sample transactions
+            for (int i = 0; i < Math.min(3, transactions.size()); i++) {
+                logger.info("Sample transaction {}: {}", i + 1, transactions.get(i));
+            }
+
         } catch (Exception e) {
             logger.error("Transaction extraction failed", e);
             takeScreenshot("transactions_failure");
@@ -102,11 +120,13 @@ public class ExpenseTrackerAutomation {
 
     @AfterClass
     public void tearDown() {
-    logger.info("Cleanup...");
-    if (driver != null) {
-    DriverManager.quitDriver();
-    }
-    logger.info("Automation completed.");
+        logger.info("Cleanup...");
+        
+        if (driver != null) {
+            DriverManager.quitDriver();
+        }
+        
+        logger.info("Automation completed.");
     }
 
     private void takeScreenshot(String screenshotName) {
@@ -142,7 +162,7 @@ public class ExpenseTrackerAutomation {
         } catch (Exception e) {
             logger.error("Automation failed", e);
         } finally {
-        automation.tearDown();
+            automation.tearDown();
         }
     }
 }

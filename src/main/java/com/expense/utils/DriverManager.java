@@ -92,9 +92,14 @@ public class DriverManager {
 
     public static void quitDriver() {
         if (driver.get() != null) {
-            logger.info("Quitting driver");
-            driver.get().quit();
-            driver.remove();
+            logger.info("Quitting driver...");
+
+            try {
+                driver.get().quit();
+                driver = null;
+            } catch (Exception e) {
+                logger.warn("Exception while quitting driver", e);
+            }
         }
     }
 }
