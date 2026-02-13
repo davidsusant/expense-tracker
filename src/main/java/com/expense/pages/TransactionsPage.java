@@ -92,11 +92,15 @@ public class TransactionsPage extends BasePage {
             // Parse amount
             double amount = parseAmount(amountStr);
 
+            // Parse category
+            String category = categorizeTransaction(description);
+
             // Create transaction object
             Transaction transaction = new Transaction();
             transaction.setDate(date);
             transaction.setDescription(description);
             transaction.setAmount(amount);
+            transaction.setCategory(category);
 
             logger.debug("Extracted transaction: {}", transaction);
             return transaction;
@@ -141,6 +145,25 @@ public class TransactionsPage extends BasePage {
         } catch (NumberFormatException e) {
             logger.error("Error parsing amount: {}", amountStr, e);
             return 0.0;
+        }
+    }
+
+    /**
+     * 
+     * @param description
+     * @return
+     */
+    private String categorizeTransaction(String description) {
+        String desc = description.toLowerCase();
+
+        if (desc.contains("sbux")) {
+            return "Starbucks";
+        }
+        else if (desc.contains("maison")) {
+            return "Bread";
+        } 
+        else {
+            return "Others";
         }
     }
 }

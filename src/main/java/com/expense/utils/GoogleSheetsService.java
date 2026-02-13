@@ -60,9 +60,10 @@ public class GoogleSheetsService {
         header.add("Date");
         header.add("Description");
         header.add("Amount");
+        header.add("Category");
         values.add(header);
 
-        String range = sheetName + "!A1:C1";
+        String range = sheetName + "!A1:D1";
         ValueRange body = new ValueRange().setValues(values);
 
         sheetsService.spreadsheets().values()
@@ -87,10 +88,11 @@ public class GoogleSheetsService {
             row.add(transaction.getDate().format(dateFormatter));
             row.add(transaction.getDescription());
             row.add(transaction.getAmount());
+            row.add(transaction.getCategory());
             values.add(row);
         }
 
-        String range = sheetName + "!A:C";
+        String range = sheetName + "!A:D";
         ValueRange body = new ValueRange().setValues(values);
 
         AppendValuesResponse result = sheetsService.spreadsheets().values()
@@ -103,7 +105,7 @@ public class GoogleSheetsService {
     }
 
     public void clearSheet() throws IOException {
-        String range = sheetName + "!A:C";
+        String range = sheetName + "!A:D";
         sheetsService.spreadsheets().values()
             .clear(spreadsheetId, range, null)
             .execute();
