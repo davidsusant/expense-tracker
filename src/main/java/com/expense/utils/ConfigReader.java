@@ -52,4 +52,20 @@ public class ConfigReader {
     public static String getBankingPassword() {
         return properties.getProperty("banking.password");
     }
+
+    public static String getGoogleCredentialsPath() {
+        return properties.getProperty("google.credentials.path");
+    }
+
+    public static String getSpreadsheetId() {
+        return properties.getProperty("google.spreadsheet.id");
+    }
+
+    public static String getSheetName() {
+        return properties.getProperty("google.sheet.name");
+    }
+
+    public static String getApplicationName() {
+        return properties.getProperty("google.application.name");
+    }
 }

@@ -3,3 +3,4 @@
 target/
 config.properties
 test-output/
+service-account-credentials.json

@@ -86,11 +86,6 @@ public class TransactionsPage extends BasePage {
             String description = cells.get(1).getText().trim();
             String amountStr = cells.get(2).getText().trim();
 
-            if (amountStr == "PEND") {
-                logger.warn("Row with amout = 'PEND' has skipped");
-                return null;
-            }
-
             // Parse date
             LocalDate date = parseDate(dateStr);
 
@@ -120,6 +115,11 @@ public class TransactionsPage extends BasePage {
     private LocalDate parseDate(String dateStr) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
+
+            if (dateStr.equals("PEND")) {
+                logger.info("Row with transaction date = 'PEND' has been changed to today date");
+                dateStr = LocalDate.now().format(formatter);
+            }
 
             return LocalDate.parse(dateStr, formatter);
         } catch (Exception e) {

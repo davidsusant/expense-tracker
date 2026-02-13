@@ -23,6 +23,7 @@ import com.expense.pages.LogoutPage;
 import com.expense.pages.TransactionsPage;
 import com.expense.utils.ConfigReader;
 import com.expense.utils.DriverManager;
+import com.expense.utils.GoogleSheetsService;
 
 public class ExpenseTrackerAutomation {
 
@@ -33,6 +34,7 @@ public class ExpenseTrackerAutomation {
     private LoginPage loginPage;
     private TransactionsPage transactionsPage;
     private LogoutPage logoutPage;
+    private GoogleSheetsService googleSheetsService;
 
     @BeforeClass
     public void setup() {
@@ -46,6 +48,9 @@ public class ExpenseTrackerAutomation {
             loginPage = new LoginPage(driver);
             transactionsPage = new TransactionsPage(driver);
             logoutPage = new LogoutPage(driver);
+
+            // Initialize Google Sheets Service
+            googleSheetsService = new GoogleSheetsService();
 
             logger.info("Setup completed successfully");
         } catch (Exception e) {
@@ -97,10 +102,33 @@ public class ExpenseTrackerAutomation {
                 logger.info("Sample transaction {}: {}", i + 1, transactions.get(i));
             }
 
+            // Write to Google Sheets
+            writeTransactionsToGoogleSheets(transactions);
+
         } catch (Exception e) {
             logger.error("Transaction extraction failed", e);
             takeScreenshot("transactions_failure");
             throw e;
+        }
+    }
+
+    private void writeTransactionsToGoogleSheets(List<Transaction> transactions) {
+        logger.info("Writing to Google Sheets...");
+
+        try {
+            // Clear sheets first
+            googleSheetsService.clearSheet();
+
+            // Write header
+            googleSheetsService.writeHeader();
+
+            // Append transactions
+            googleSheetsService.appendTransactions(transactions);
+
+            logger.info("Successfully wrote {} transactions to Google Sheets", transactions.size());
+        } catch (IOException e) {
+            logger.error("Failed to write to Google Sheets", e);
+            throw new RuntimeException("Google Sheets write failed", e);
         }
     }
 

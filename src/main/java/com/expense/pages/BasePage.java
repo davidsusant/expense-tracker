@@ -43,7 +43,13 @@ public class BasePage {
         highlightElement(element);
         element.clear();
         element.sendKeys(text);
-        logger.debug("Entered text '{}' into element: {}", text, element);
+
+        if (element.getAttribute("name").equals("password")) {
+            logger.debug("Entered password into element: {}", element);
+        }
+        else {
+            logger.debug("Entered text '{}' into element: {}", text, element);
+        }
     }
 
     protected void click(WebElement element) {
