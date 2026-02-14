@@ -13,9 +13,6 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import com.expense.models.Transaction;
 import com.expense.pages.LoginPage;
@@ -36,7 +33,6 @@ public class ExpenseTrackerAutomation {
     private LogoutPage logoutPage;
     private GoogleSheetsService googleSheetsService;
 
-    @BeforeClass
     public void setup() {
         logger.info("Starting Expense Tracker Automation...");
 
@@ -59,7 +55,6 @@ public class ExpenseTrackerAutomation {
         }
     }
 
-    @Test(priority = 1)
     public void loginToBankingWebsite() {
         logger.info("Starting Login...");
 
@@ -79,7 +74,6 @@ public class ExpenseTrackerAutomation {
         }
     }
 
-    @Test(priority = 2, dependsOnMethods = "loginToBankingWebsite")
     public void extractTransactionsFromBanking() {
         logger.info("Starting Extract Transaction...");
 
@@ -132,7 +126,6 @@ public class ExpenseTrackerAutomation {
         }
     }
 
-    @Test(priority = 3, dependsOnMethods = "extractTransactionsFromBanking")
     public void logoutFromBankingWebsite() {
         logger.info("Starting Logout...");
 
@@ -146,7 +139,6 @@ public class ExpenseTrackerAutomation {
         }
     }
 
-    @AfterClass
     public void tearDown() {
         logger.info("Cleanup...");
         
