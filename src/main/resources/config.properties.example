@@ -5,10 +5,16 @@ implicit.wait=10
 page.load.timeout=30
 
 # Web Banking Configuration
-banking.url=
+banking.url=https://mybca.bca.co.id/auth/login
 banking.username=
 banking.password=
 
 # Screenshot Configuration
 screenshot.on.failure=true
 screenshot.path=test-output/screenshots/
+
+# Google Sheets Configuration
+google.credentials.path=
+google.spreadsheet.id=
+google.sheet.name=Expenses
+google.application.name=Expense Tracker Automation
