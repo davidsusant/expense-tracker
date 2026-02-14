@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Expense Tracker Automation Suite" parallel="false">
-    <test name="Expense Tracker Test">
-        <classes>
-            <class name="com.expense.ExpenseTrackerAutomation" />
-        </classes>
-    </test>
-</suite>
