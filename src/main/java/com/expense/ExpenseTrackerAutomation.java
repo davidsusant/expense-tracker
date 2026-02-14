@@ -55,16 +55,17 @@ public class ExpenseTrackerAutomation {
         }
     }
 
-    public void loginToBankingWebsite() {
-        logger.info("Starting Login...");
+    // BCA Banking Website Automation
+    public void loginToBcaBankingWebsite() {
+        logger.info("Starting Login to BCA website...");
 
         try {
-            String bankingUrl = ConfigReader.getBankingUrl();
-            String bankingUsername = ConfigReader.getBankingUsername();
-            String bankingPassword = ConfigReader.getBankingPassword();
+            String bcaBankingUrl = ConfigReader.getBankingUrl();
+            String bcaBankingUsername = ConfigReader.getBankingUsername();
+            String bcaBankingPassword = ConfigReader.getBankingPassword();
 
-            loginPage.navigateToLoginPage(bankingUrl);
-            loginPage.login(bankingUsername, bankingPassword);
+            loginPage.navigateToBcaLoginPage(bcaBankingUrl);
+            loginPage.bcaLogin(bcaBankingUsername, bcaBankingPassword);
 
             logger.info("Login successful");
         } catch (Exception e) {
@@ -106,6 +107,51 @@ public class ExpenseTrackerAutomation {
         }
     }
 
+    public void logoutFromBcaBankingWebsite() {
+        logger.info("Starting logout from BCA banking website...");
+
+        try {
+            // Click logout button
+            logoutPage.bcaLogout();
+        } catch (Exception e) {
+            logger.error("Logout failed", e);
+            takeScreenshot("logout_bca_failure");
+            throw e;
+        }
+    }
+
+    // CIMB Banking Website Automation
+    public void loginToCimbBankingWebsite() {
+        logger.info("Starting login to CIMB website...");
+
+        try {
+            String cimbBankingUrl = ConfigReader.getCimbBankingUrl();
+            String cimbBankingUsername = ConfigReader.getCimbBankingUsername();
+            String cimbBankingPassword = ConfigReader.getCimbBankingPassword();
+
+            loginPage.navigateToCimbLoginPage(cimbBankingUrl);
+            loginPage.cimbLogin(cimbBankingUsername, cimbBankingPassword);
+
+            logger.info("Login to CIMB website succesful");
+        } catch (Exception e) {
+            logger.error("Login failed", e);
+            takeScreenshot("login_cimb_failure");
+        }
+    }
+
+    public void logoutFromCimbBankingWebsite() {
+        logger.info("Starting logout from CIMB website...");
+
+        try {
+            // Click logout button
+            logoutPage.cimbLogout();
+        } catch (Exception e) {
+            logger.error("Logout failed", e);
+            takeScreenshot("logout_cimb_failure");
+            throw e;
+        }
+    }
+
     private void writeTransactionsToGoogleSheets(List<Transaction> transactions) {
         logger.info("Writing to Google Sheets...");
 
@@ -123,19 +169,6 @@ public class ExpenseTrackerAutomation {
         } catch (IOException e) {
             logger.error("Failed to write to Google Sheets", e);
             throw new RuntimeException("Google Sheets write failed", e);
-        }
-    }
-
-    public void logoutFromBankingWebsite() {
-        logger.info("Starting Logout...");
-
-        try {
-            // Click logout button
-            logoutPage.clickLogoutButton();
-        } catch (Exception e) {
-            logger.error("Logout failed", e);
-            takeScreenshot("logout_failure");
-            throw e;
         }
     }
 
@@ -176,9 +209,16 @@ public class ExpenseTrackerAutomation {
 
         try {
             automation.setup();
-            automation.loginToBankingWebsite();
+
+            // Credit Card BCA
+            automation.loginToBcaBankingWebsite();
             automation.extractTransactionsFromBanking();
-            automation.logoutFromBankingWebsite();
+            automation.logoutFromBcaBankingWebsite();
+
+            // Credit Card CIMB
+            automation.loginToCimbBankingWebsite();
+            automation.logoutFromCimbBankingWebsite();
+
         } catch (Exception e) {
             logger.error("Automation failed", e);
         } finally {

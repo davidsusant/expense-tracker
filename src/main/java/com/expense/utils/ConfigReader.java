@@ -41,16 +41,31 @@ public class ConfigReader {
         return properties.getProperty("screenshot.path");
     }
 
+    // BCA Banking Website
+
     public static String getBankingUrl() {
-        return properties.getProperty("banking.url");
+        return properties.getProperty("bca.banking.url");
     }
 
     public static String getBankingUsername() {
-        return properties.getProperty("banking.username");
+        return properties.getProperty("bca.banking.username");
     }
 
     public static String getBankingPassword() {
-        return properties.getProperty("banking.password");
+        return properties.getProperty("bca.banking.password");
+    }
+
+    // CIMB Banking Website
+    public static String getCimbBankingUrl() {
+        return properties.getProperty("cimb.banking.url");
+    }
+
+    public static String getCimbBankingUsername() {
+        return properties.getProperty("cimb.banking.username");
+    }
+
+    public static String getCimbBankingPassword() {
+        return properties.getProperty("cimb.banking.password");
     }
 
     public static String getGoogleCredentialsPath() {
