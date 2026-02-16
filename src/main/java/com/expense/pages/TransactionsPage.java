@@ -14,6 +14,7 @@ import com.expense.models.Transaction;
 
 public class TransactionsPage extends BasePage {
 
+    // BCA Banking Website Elements
     @FindBy(xpath = "/html/body/app-root/ng-component/section/app-header/header/nav/div/div/app-nav-menu/ul/li[3]/a")
     private WebElement myAccountMenuLink;
 
@@ -29,23 +30,50 @@ public class TransactionsPage extends BasePage {
     @FindBy(xpath = "//*[@id=\"trxTable\"]/table/tbody/tr")
     private List<WebElement> transactionRows;
 
+    // CIMB Banking Website Elements
+    @FindBy(xpath = "//*[@id=\"main-navigation\"]/ul/li[1]/a/span")
+    private WebElement rekeningSaya;
+
+    @FindBy(xpath = "//*[@id=\"root\"]/div/main/div/div[1]/div/div[3]/div[2]")
+    private WebElement kartuKredit;
+
+    @FindBy(xpath = "//*[@id=\"radix-:r1f:\"]/div/div/div/div/div[2]/div/div[1]")
+    private WebElement mcPlatinumReguler;
+
+    @FindBy(xpath = "//*[@id=\"root\"]/div/main/div/div[3]/div[2]/div/div/div/div[1]/div/div[2]")
+    private WebElement cimbTransactionBody;
+
+    @FindBy(css = "//*[@id=\"root\"]/div/main/div/div[3]/div[2]/div/div/div/div[1]/div/div[2]/div[1]")
+    private List<WebElement> cimbTransactionRows;
+
     public TransactionsPage(WebDriver driver) {
         super(driver);
     }
 
-    public void navigateToTransactions() {
+    // BCA Banking Website Transaction Page
+    public void navigateToBcaTransactions() {
         click(myAccountMenuLink);
         click(creditCardInformationMenuLink);
         click(unbilledTransactionsMenuLink);
         waitForPageLoad();
-        logger.info("Navigated to transactions page");
+        logger.info("Navigated to BCA transactions page");
+    }
+
+    public void navigateToCimbTransactions() {
+        click(rekeningSaya);
+        waitForPageLoad();
+        click(kartuKredit);
+        waitForElementToBeVisible(mcPlatinumReguler);
+        click(mcPlatinumReguler);
+        waitForPageLoad();
+        logger.info("Navigated to CIMB transactions page");
     }
 
     /**
      * Extract all transactions from the table
      * @return
      */
-    public List<Transaction> extractTransactions() {
+    public List<Transaction> extractBcaTransactions() {
         List<Transaction> transactions = new ArrayList<>();
 
         waitForElementToBeVisible(transactionTable);
@@ -53,7 +81,7 @@ public class TransactionsPage extends BasePage {
 
         for (WebElement row : transactionRows) {
             try {
-                Transaction transaction = extractTransactionFromRow(row);
+                Transaction transaction = extractBcaTransactionFromRow(row);
                 if (transaction != null) {
                     transactions.add(transaction);
                 }
@@ -71,7 +99,7 @@ public class TransactionsPage extends BasePage {
      * @param row
      * @return
      */
-    private Transaction extractTransactionFromRow(WebElement row) {
+    private Transaction extractBcaTransactionFromRow(WebElement row) {
         try {
             // Get all cells in the row
             List<WebElement> cells = row.findElements(By.tagName("td"));
@@ -105,6 +133,77 @@ public class TransactionsPage extends BasePage {
             logger.debug("Extracted transaction: {}", transaction);
             return transaction;
 
+        } catch (Exception e) {
+            logger.error("Error parsing transaction row", e);
+            return null;
+        }
+    }
+
+    /**
+     * Extract all CIMB transactions from Web Element
+     * @return
+     */
+    public List<Transaction> extractCimbTransactions() {
+        List<Transaction> transactions = new ArrayList<>();
+
+        waitForElementToBeVisible(cimbTransactionBody);
+        logger.info("Found {} transaction rows", cimbTransactionBody.getSize());
+
+        for (WebElement row : cimbTransactionRows) {
+            try {
+                Transaction transaction = extractCimbTransactionFromRow(row);
+                if (transaction != null) {
+                    transactions.add(transaction);
+                }
+            } catch (Exception e) {
+                logger.error("Error extracting transaction from row", e);
+            }
+        }
+
+        logger.info("Successfully extracted {} transactions", transactions.size());
+        return transactions;
+    }
+
+    /**
+     * Extract CIMB transaction data from a single row
+     * @param row
+     * @return
+     */
+    private Transaction extractCimbTransactionFromRow(WebElement row) {
+        try {
+            // Get all cells in the row
+            List<WebElement> cells = row.findElements(By.xpath("./div"));
+
+            // Skip rows that don't have the expected 4 columns
+            if (cells.size() < 4) {
+                logger.warn("Skipping row with {} cells", cells.size());
+                return null;
+            }
+
+            // Extract data from cells
+            String dateStr = cells.get(0).getText().trim();
+            String description = cells.get(2).getText().trim();
+            String amountStr = cells.get(3).getText().trim();
+
+            // Skip completely empty rows
+            if (dateStr.isEmpty()) {
+                return null;
+            }
+
+            // Parse date
+            LocalDate date = parseDate(dateStr);
+
+            // Parse amount
+            double amount = parseAmount(amountStr);
+
+            // Create transaction object
+            Transaction transaction = new Transaction();
+            transaction.setDate(date);
+            transaction.setDescription(description);
+            transaction.setAmount(amount);
+
+            logger.debug("Extracted transaction: {}", transaction);
+            return transaction;
         } catch (Exception e) {
             logger.error("Error parsing transaction row", e);
             return null;
@@ -162,6 +261,12 @@ public class TransactionsPage extends BasePage {
         else if (desc.contains("maison")) {
             return "Bread";
         } 
+        else if (desc.contains("hyundai")) {
+            return "Car Charging";
+        }
+        else if (desc.contains("kopitien")) {
+            return "Eating";
+        }
         else {
             return "Others";
         }

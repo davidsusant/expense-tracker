@@ -32,12 +32,10 @@ public class GoogleSheetsService {
 
     private Sheets sheetsService;
     private String spreadsheetId;
-    private String sheetName;
     
     public GoogleSheetsService() throws FileNotFoundException, IOException, GeneralSecurityException {
         this.sheetsService = getSheetsService();
         this.spreadsheetId = ConfigReader.getSpreadsheetId();
-        this.sheetName = ConfigReader.getSheetName();
 
         logger.info("GoogleSheetsService initialize for spreadsheet: {}", spreadsheetId);
     }
@@ -54,7 +52,7 @@ public class GoogleSheetsService {
             .build();
     }
 
-    public void writeHeader() throws IOException {
+    public void writeHeader(String sheetName) throws IOException {
         List<List<Object>> values = new ArrayList<>();
         List<Object> header = new ArrayList<>();
         header.add("Date");
@@ -74,7 +72,7 @@ public class GoogleSheetsService {
         logger.info("Header row written to Google Sheets");
     }
 
-    public void appendTransactions(List<Transaction> transactions) throws IOException {
+    public void appendTransactions(List<Transaction> transactions, String sheetName) throws IOException {
         if (transactions == null || transactions.isEmpty()) {
             logger.warn("No transactions to append");
             return;
@@ -104,7 +102,7 @@ public class GoogleSheetsService {
         logger.info("Successfully appended {} rows to Google Sheets", result.getUpdates().getUpdatedRows());
     }
 
-    public void clearSheet() throws IOException {
+    public void clearSheet(String sheetName) throws IOException {
         String range = sheetName + "!A:D";
         sheetsService.spreadsheets().values()
             .clear(spreadsheetId, range, null)

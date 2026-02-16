@@ -75,15 +75,15 @@ public class ExpenseTrackerAutomation {
         }
     }
 
-    public void extractTransactionsFromBanking() {
-        logger.info("Starting Extract Transaction...");
+    public void extractTransactionsFromBcaBanking() {
+        logger.info("Starting extract transaction from BCA banking...");
 
         try {
             // Navigate to transaction page
-            transactionsPage.navigateToTransactions();
+            transactionsPage.navigateToBcaTransactions();
 
             // Extract transactions
-            List<Transaction> transactions = transactionsPage.extractTransactions();
+            List<Transaction> transactions = transactionsPage.extractBcaTransactions();
 
             if (transactions.isEmpty()) {
                 logger.warn("No transactions found");
@@ -92,18 +92,35 @@ public class ExpenseTrackerAutomation {
 
             logger.info("Extracted {} transactions", transactions.size());
 
-            // Log sample transactions
-            for (int i = 0; i < Math.min(3, transactions.size()); i++) {
-                logger.info("Sample transaction {}: {}", i + 1, transactions.get(i));
-            }
-
             // Write to Google Sheets
-            writeTransactionsToGoogleSheets(transactions);
+            writeBcaTransactionsToGoogleSheets(transactions);
 
         } catch (Exception e) {
-            logger.error("Transaction extraction failed", e);
-            takeScreenshot("transactions_failure");
+            logger.error("BCA transaction extraction failed", e);
+            takeScreenshot("bca_transactions_failure");
             throw e;
+        }
+    }
+
+    private void writeBcaTransactionsToGoogleSheets(List<Transaction> transactions) {
+        logger.info("Writing to Google Sheets...");
+
+        try {
+            String sheetName = ConfigReader.getBcaSheetName();
+
+            // Clear sheets first
+            googleSheetsService.clearSheet(sheetName);
+
+            // Write header
+            googleSheetsService.writeHeader(sheetName);
+
+            // Append transactions
+            googleSheetsService.appendTransactions(transactions, sheetName);
+
+            logger.info("Successfully wrote {} transactions to Google Sheets", transactions.size());
+        } catch (IOException e) {
+            logger.error("Failed to write to Google Sheets", e);
+            throw new RuntimeException("Google Sheets write failed", e);
         }
     }
 
@@ -139,6 +156,55 @@ public class ExpenseTrackerAutomation {
         }
     }
 
+    public void extractTransactionsFromCimbBanking() {
+        logger.info("Starting extract transaction from CIMB banking...");
+
+        try {
+            // Navigate to transaction page
+            transactionsPage.navigateToCimbTransactions();
+
+            // Extract transactions
+            List<Transaction> transactions = transactionsPage.extractCimbTransactions();
+
+            if (transactions.isEmpty()) {
+                logger.warn("No transactions found");
+                return;
+            }
+
+            logger.info("Extracted {} transactions", transactions.size());
+
+            // Write to Google Sheets
+            writeCimbTransactionsToGoogleSheets(transactions);
+            
+        } catch (Exception e) {
+            logger.error("CIMB transaction extraction failed", e);
+            takeScreenshot("cimb_transactions_failure");
+            throw e;
+        }
+    }
+
+    private void writeCimbTransactionsToGoogleSheets(List<Transaction> transactions) {
+        logger.info("Writing to Google Sheets...");
+
+        try {
+            String sheetName = ConfigReader.getCimbSheetName();
+
+            // Clear sheets first
+            googleSheetsService.clearSheet(sheetName);
+
+            // Write header
+            googleSheetsService.writeHeader(sheetName);
+
+            // Append transactions
+            googleSheetsService.appendTransactions(transactions, sheetName);
+
+            logger.info("Successfully wrote {} transactions to Google Sheets", transactions.size());
+        } catch (IOException e) {
+            logger.error("Failed to write to Google Sheets", e);
+            throw new RuntimeException("Google Sheets write failed", e);
+        }
+    }
+
     public void logoutFromCimbBankingWebsite() {
         logger.info("Starting logout from CIMB website...");
 
@@ -149,26 +215,6 @@ public class ExpenseTrackerAutomation {
             logger.error("Logout failed", e);
             takeScreenshot("logout_cimb_failure");
             throw e;
-        }
-    }
-
-    private void writeTransactionsToGoogleSheets(List<Transaction> transactions) {
-        logger.info("Writing to Google Sheets...");
-
-        try {
-            // Clear sheets first
-            googleSheetsService.clearSheet();
-
-            // Write header
-            googleSheetsService.writeHeader();
-
-            // Append transactions
-            googleSheetsService.appendTransactions(transactions);
-
-            logger.info("Successfully wrote {} transactions to Google Sheets", transactions.size());
-        } catch (IOException e) {
-            logger.error("Failed to write to Google Sheets", e);
-            throw new RuntimeException("Google Sheets write failed", e);
         }
     }
 
@@ -212,12 +258,13 @@ public class ExpenseTrackerAutomation {
 
             // Credit Card BCA
             automation.loginToBcaBankingWebsite();
-            automation.extractTransactionsFromBanking();
+            automation.extractTransactionsFromBcaBanking();
             automation.logoutFromBcaBankingWebsite();
 
             // Credit Card CIMB
-            automation.loginToCimbBankingWebsite();
-            automation.logoutFromCimbBankingWebsite();
+            // automation.loginToCimbBankingWebsite();
+            // automation.extractTransactionsFromCimbBanking();
+            // automation.logoutFromCimbBankingWebsite();
 
         } catch (Exception e) {
             logger.error("Automation failed", e);

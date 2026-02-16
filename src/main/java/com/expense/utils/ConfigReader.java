@@ -42,7 +42,6 @@ public class ConfigReader {
     }
 
     // BCA Banking Website
-
     public static String getBankingUrl() {
         return properties.getProperty("bca.banking.url");
     }
@@ -76,8 +75,12 @@ public class ConfigReader {
         return properties.getProperty("google.spreadsheet.id");
     }
 
-    public static String getSheetName() {
-        return properties.getProperty("google.sheet.name");
+    public static String getBcaSheetName() {
+        return properties.getProperty("bca.google.sheet.name");
+    }
+
+    public static String getCimbSheetName() {
+        return properties.getProperty("cimb.google.sheet.name");
     }
 
     public static String getApplicationName() {
