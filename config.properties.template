@@ -1,0 +1,7 @@
+# --- PDF input ---
+pdf.input.directory=./statements
+
+# --- Google Sheets ---
+google.sheets.credentials.path=./credentials/service-account.json
+google.sheets.spreadsheet.id=YOUR_SPREADSHEET_ID
+google.sheets.default.sheet.name=Transaction
